@@ -3,6 +3,7 @@ package fr.unice.polytech.isa.dd;
 import fr.unice.polytech.isa.dd.entities.Package;
 import fr.unice.polytech.isa.dd.entities.Provider;
 import org.joda.time.DateTime;
+import utils.MyDate;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -23,11 +24,12 @@ public class PackageRegisterBean implements PackageRegistration, PackageFinder {
     @PersistenceContext private EntityManager entityManager;
 
     @Override
-    public void register(int id, Double w, DateTime dateTime, Provider provider) {
+    public Boolean register(int id, Double w, MyDate dateTime, Provider provider) {
         Optional<Package> p = findPackageById(id);
-        if(p.isPresent()) return;
+        if(p.isPresent()) return false;
         Package new_package = new Package(id, w, dateTime, provider);
         entityManager.persist(new_package);
+        return true;
     }
 
 
