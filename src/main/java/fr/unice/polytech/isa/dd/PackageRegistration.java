@@ -10,5 +10,5 @@ import javax.ejb.Local;
 @Local
 public interface PackageRegistration {
 
-     Boolean register(int id, Double w, MyDate d, Provider pro);
+     Boolean register(String id, Double w, String d, Provider pro);
 }

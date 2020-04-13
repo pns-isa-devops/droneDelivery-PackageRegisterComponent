@@ -24,7 +24,7 @@ public class PackageRegisterBean implements PackageRegistration, PackageFinder {
     @PersistenceContext private EntityManager entityManager;
 
     @Override
-    public Boolean register(int id, Double w, MyDate dateTime, Provider provider) {
+    public Boolean register(String id, Double w, String dateTime, Provider provider) {
         Optional<Package> p = findPackageById(id);
         if(p.isPresent()) return false;
         Package new_package = new Package(id, w, dateTime, provider);
@@ -34,16 +34,16 @@ public class PackageRegisterBean implements PackageRegistration, PackageFinder {
 
 
     @Override
-    public Package findById(int id) {
+    public Package findById(String id) {
         Optional<Package> packageById = findPackageById(id);
         return packageById.orElse(null);
     }
 
-    public Optional<Package> findPackageById(int id) {
+    public Optional<Package> findPackageById(String id) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Package> criteria = builder.createQuery(Package.class);
         Root<Package> root =  criteria.from(Package.class);
-        criteria.select(root).where(builder.equal(root.get("number"), id));
+        criteria.select(root).where(builder.equal(root.get("secretNumber"), id));
         TypedQuery<Package> query = entityManager.createQuery(criteria);
         try {
             return Optional.of(query.getSingleResult());

@@ -7,5 +7,5 @@ import javax.ejb.Local;
 @Local
 public interface PackageFinder {
 
-     Package findById(int id);
+     Package findById(String id);
 }
