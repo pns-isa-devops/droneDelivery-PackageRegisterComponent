@@ -5,16 +5,23 @@ import cucumber.runtime.arquillian.CukeSpace;
 import fr.unice.polytech.isa.dd.entities.Customer;
 import fr.unice.polytech.isa.dd.entities.Package;
 import fr.unice.polytech.isa.dd.entities.Provider;
+import fr.unice.polytech.isa.dd.exceptions.AlreadyExistingPackageException;
+import fr.unice.polytech.isa.dd.exceptions.UnknownPackageException;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jruby.util.Pack;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import utils.MyDate;
 
 import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.*;
 
 import static org.junit.Assert.*;
 
@@ -23,47 +30,77 @@ import static org.junit.Assert.*;
 public class PackageRegisterBeanTest extends AbstractPackageRegisterTest {
     @PersistenceContext
     private EntityManager entityManager;
+    @Inject
+    UserTransaction userTransaction;
 
     @EJB(name = "package-stateless") private PackageRegistration packageRegistration;
     @EJB(name = "package-stateless") private PackageFinder packageFinder;
-    @EJB(name = "provider-stateless") private ProviderRegistration providerRegistration;
-    @EJB(name = "provider-stateless") private ProviderFinder providerFinder;
+
+    private Provider provider1 = new Provider("Carrefour");
+    private Provider provider2 = new Provider("Amazon");
+    private Provider provider3 = new Provider("Facebook");
+    private Package aPackage1 = new Package();
+    private Package aPackage2 = new Package("NN10", 5.0, "13/04/2020 12h30", provider2);
+    private Package aPackage3 = new Package("P5", 5.0, "13/04/2020 16h30", provider3);
+
+    @Before
+    public void setUp(){
+        entityManager.persist(provider1);
+        entityManager.persist(provider2);
+        entityManager.persist(provider3);
+
+        aPackage1.setSecret_number("10");
+    }
+    @After
+    public void cleanUp() throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException {
+        userTransaction.begin();
+
+        provider1 = entityManager.merge(provider1);
+        entityManager.remove(provider1);
+        provider2 = entityManager.merge(provider2);
+        entityManager.remove(provider2);
+        provider3 = entityManager.merge(provider3);
+        entityManager.remove(provider3);
+
+        aPackage2 = entityManager.merge(aPackage2);
+        entityManager.remove(aPackage2);
+        aPackage3 = entityManager.merge(aPackage3);
+        entityManager.remove(aPackage3);
+
+        userTransaction.commit();
+    }
 
 
     @Test
-    public void register() throws Exception {
-        Provider pro1 = new Provider("Carrefour");
-        providerRegistration.register("Carrefour");
-        Provider pro = providerFinder.findByName("Carrefour");
-        Package p = new Package("10", 5.0, "10/04/2020 11h48", pro);
-        packageRegistration.register("10", 5.0, "10/04/2020 11h48", pro);
-        int id = packageFinder.findById("10").getId();
-        assertEquals(p.getSecret_number(), entityManager.find(Package.class, id).getSecret_number());
+    public void registerTest() throws Exception {
+        packageRegistration.register("10", 5.0, "10/04/2020 11h48", "Carrefour");
+        int id = entityManager.find(Package.class,aPackage1.getId()).getId();
+        assertEquals(aPackage1.getSecret_number(), entityManager.find(Package.class, id).getSecret_number());
 
     }
 
+    @Test(expected = AlreadyExistingPackageException.class)
+    public void registerExceptionTest() throws AlreadyExistingPackageException, UnknownPackageException {
+        packageRegistration.register("10", 15.0, "15/04/2020 11h48", "Zara");
+        aPackage1 = packageFinder.findPackageBySecretNumber("10");
+        aPackage1 = entityManager.find(Package.class, aPackage1.getId());
+        entityManager.remove(aPackage1);
+    }
+
     @Test
-    public void findById() {
+    public void findBySecretNumberTest() throws UnknownPackageException {
+        entityManager.persist(aPackage2);
+        entityManager.persist(aPackage3);
 
-        //Provider pro1 = new Provider("Facebook");
+        Package package1 = packageFinder.findPackageBySecretNumber("NN10");
+        Package package2 = packageFinder.findPackageBySecretNumber("P5");
+        assertEquals(aPackage2, package1);
+        assertNotEquals(aPackage2, package2);
+    }
 
-        providerRegistration.register("Amazon");
-        providerRegistration.register("Facebook");
-
-        Provider pro = providerFinder.findByName("Amazon");
-        Provider pro1 = providerFinder.findByName("Facebook");
-
-        Package pp = new Package("NN10", 5.0, "13/04/2020 12h30", pro);
-
-        packageRegistration.register("NN10", 5.0, "13/04/2020 12h30", pro);
-        packageRegistration.register("P5", 5.0, "13/04/2020 16h30", pro1);
-
-        Package p1 = packageFinder.findById("NN10");
-        Package p2 = packageFinder.findById("P5");
-        assertEquals(pp, p1);
-        assertNotEquals(pp, p2);
-
-
+    @Test(expected = UnknownPackageException.class)
+    public void dosentFoundPackageTest() throws UnknownPackageException{
+        packageFinder.findPackageBySecretNumber("ABC");
     }
 }
 

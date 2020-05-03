@@ -27,13 +27,12 @@ public abstract class AbstractPackageRegisterTest {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addAsWebInfResource(EmptyAsset.INSTANCE,"beans.xml")
-                .addClass(PackageRegisterBean.class)
+                .addPackage(PackageRegisterBean.class.getPackage())
                 .addPackage(Package.class.getPackage())
                 .addPackage(PackageFinder.class.getPackage())
                 .addPackage(PackageRegistration.class.getPackage())
                 .addPackage(Customer.class.getPackage())
                 .addPackage(Provider.class.getPackage())
-                .addPackage(Database.class.getPackage())
                 .addAsManifestResource(new ClassLoaderAsset("META-INF/persistence.xml"), "persistence.xml")
                 ;
 
