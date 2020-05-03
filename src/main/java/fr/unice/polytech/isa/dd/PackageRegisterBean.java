@@ -4,6 +4,7 @@ import fr.unice.polytech.isa.dd.entities.Package;
 import fr.unice.polytech.isa.dd.entities.Provider;
 import fr.unice.polytech.isa.dd.exceptions.AlreadyExistingPackageException;
 import fr.unice.polytech.isa.dd.exceptions.UnknownPackageException;
+import fr.unice.polytech.isa.dd.exceptions.UnknownProviderException;
 import org.joda.time.DateTime;
 import utils.MyDate;
 
@@ -28,10 +29,10 @@ public class PackageRegisterBean implements PackageRegistration, PackageFinder {
     @EJB private ProviderFinder providerFinder;
 
     @Override
-    public Boolean register(String secret_number, Double w, String dateTime, String provider_name) throws AlreadyExistingPackageException {
+    public Boolean register(String secret_number, Double w, String dateTime, String provider_name) throws AlreadyExistingPackageException, UnknownProviderException {
         Optional<Package> aPackage = findPackageBySecretNNumberInDatabase(secret_number);
         if(aPackage.isPresent()) throw new AlreadyExistingPackageException(secret_number,provider_name);
-        Provider provider_given = providerFinder.findByName(provider_name);
+        Provider provider_given = providerFinder.findProviderByName(provider_name);
         Package new_package = new Package(secret_number, w, dateTime, provider_given);
         entityManager.persist(new_package);
         return true;

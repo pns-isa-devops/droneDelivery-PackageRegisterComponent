@@ -7,6 +7,7 @@ import fr.unice.polytech.isa.dd.entities.Package;
 import fr.unice.polytech.isa.dd.entities.Provider;
 import fr.unice.polytech.isa.dd.exceptions.AlreadyExistingPackageException;
 import fr.unice.polytech.isa.dd.exceptions.UnknownPackageException;
+import fr.unice.polytech.isa.dd.exceptions.UnknownProviderException;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -80,7 +81,7 @@ public class PackageRegisterBeanTest extends AbstractPackageRegisterTest {
     }
 
     @Test(expected = AlreadyExistingPackageException.class)
-    public void registerExceptionTest() throws AlreadyExistingPackageException, UnknownPackageException {
+    public void registerExceptionTest() throws AlreadyExistingPackageException, UnknownPackageException, UnknownProviderException {
         packageRegistration.register("10", 15.0, "15/04/2020 11h48", "Zara");
         aPackage1 = packageFinder.findPackageBySecretNumber("10");
         aPackage1 = entityManager.find(Package.class, aPackage1.getId());
