@@ -9,5 +9,5 @@ import javax.ejb.Local;
 public interface PackageFinder {
 
      Package findPackageBySecretNumber(String secret_number) throws UnknownPackageException;
-
+     Boolean deleteAll();
 }

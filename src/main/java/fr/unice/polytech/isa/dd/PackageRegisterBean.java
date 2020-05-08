@@ -1,5 +1,6 @@
 package fr.unice.polytech.isa.dd;
 
+import fr.unice.polytech.isa.dd.entities.Customer;
 import fr.unice.polytech.isa.dd.entities.Package;
 import fr.unice.polytech.isa.dd.entities.Provider;
 import fr.unice.polytech.isa.dd.exceptions.AlreadyExistingPackageException;
@@ -17,6 +18,8 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Objects;
 
@@ -57,5 +60,28 @@ public class PackageRegisterBean implements PackageRegistration, PackageFinder {
         } catch (NoResultException nre){
             return Optional.empty();
         }
+    }
+
+    private List<Package> allPackage() {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Package> criteria = builder.createQuery(Package.class);
+        Root<Package> root = criteria.from(Package.class);
+        criteria.select(root);
+        TypedQuery<Package> query = entityManager.createQuery(criteria);
+        try {
+            List<Package> toReturn = new ArrayList<>(query.getResultList());
+            return Optional.of(toReturn).get();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    @Override
+    public Boolean deleteAll() {
+        List<Package> allP = allPackage();
+        for (Package c : allP) {
+            entityManager.remove(c);
+        }
+        return true;
     }
 }
