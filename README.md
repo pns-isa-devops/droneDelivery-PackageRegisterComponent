@@ -15,7 +15,7 @@
   ## Code information
 *  Le code utilise `JPA Persistence` pour appliquer la persistence à `l'enregistrement` du colis ou de la `recherche` de ce dernier ou `avoir la liste des colis` dans la base de données.
 * Ce sont les principales fonctionnalités de ce composant; Chaque foncion fait appel au `EntityManager` par le biais de l'annotation **`@PersitenceContexte`**.
-Ce dernier recherche ou ajoute dans la base de données le colis donné selon la définition des attributs de la classe `Pacakge` ou recherche toutes les instance de ce type dans la base de données.
+Ce dernier recherche ou ajoute dans la base de données le colis donné selon la définition des attributs de la classe `Package` ou recherche toutes les instance de ce type dans la base de données.
 * Il utlise deux bases de données `HyperSQL Database (HSQLDB)`. Une pour les **`tests`** et une pour la **`production`**.
 *  Le composant est  `@Stateless` donc ne conserve aucune valeur d'une action à une autre
 * `PackageRegister` expose deux contrats d'utilisation ( les interfaces ) qui sont `PackageFinder` et `PackageRegistration`, on y retrouve des **exceptions**
